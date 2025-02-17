@@ -1,0 +1,58 @@
+name: Build zig project
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  creatTag:
+    runs-on: ubuntu-latest
+    steps:
+    - if: 1 == 0
+      uses: actions/checkout@v4
+    - name: Create a new tag
+      if: 1 == 0
+      run: |
+        TAG_NAME="zig-ncdu"
+        git tag $TAG_NAME
+        git push origin $TAG_NAME
+
+
+        
+  help:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: get source
+      run: |
+        curl -O https://dev.yorhel.nl/download/ncdu-2.7.tar.gz
+        tar -xf ncdu-2.7.tar.gz && rm ncdu-2.7.tar.gz
+    - name: zig --help
+      run: |
+        mkdir .zig && cd .zig && curl -o zig.tar.xz https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz
+        tar -xf zig.tar.xz && rm zig.tar.xz
+        mv * tmp && mv tmp/* . && rm tmp -d && export PATH=$PATH:$PWD
+        cd ../ncdu-2.7
+        zig build --help
+
+  build_fast:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: get source
+      run: |
+        curl -O https://dev.yorhel.nl/download/ncdu-2.7.tar.gz
+        tar -xf ncdu-2.7.tar.gz && rm ncdu-2.7.tar.gz
+    - name: zig build fast
+      run: |
+        mkdir .zig && cd .zig && curl -o zig.tar.xz https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz
+        tar -xf zig.tar.xz && rm zig.tar.xz
+        mv * tmp && mv tmp/* . && rm tmp -d && export PATH=$PATH:$PWD
+        cd ../ncdu-2.7
+        zig build -Doptimize=ReleaseFast -Dcpu="cortex_x1c" -Dstrip=true -Dtarget="aarch64-linux-musl"
+    - name: pack out
+      run: |
+        mv zig-out ncdu-2.7
+        ls -lh ncdu-2.7
+        7z a ncdu-2.7-x1c_fast.7z ncdu-2.7
