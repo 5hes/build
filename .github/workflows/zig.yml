@@ -46,8 +46,6 @@ jobs:
         tar -xf ncdu-2.7.tar.gz && rm ncdu-2.7.tar.gz
     - name: zig build fast
       run: |
-        curl -o llvm.sh https://apt.llvm.org/llvm.sh
-        sudo chmod 777 llvm.sh && sudo ./llvm.sh 19 all
         mkdir .zig && cd .zig && curl -o zig.tar.xz https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz
         tar -xf zig.tar.xz && rm zig.tar.xz
         mv * tmp && mv tmp/* . && rm tmp -d && export PATH=$PATH:$PWD
